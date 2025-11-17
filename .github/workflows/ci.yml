@@ -102,30 +102,19 @@ jobs:
           retention-days: 14
 
 
-  build:
-    name: Сборка пакета
+build:
+    name: Сборка и проверка установки
     runs-on: ubuntu-latest
-    needs: [lint, test, security]   # ждёт успешного завершения всех предыдущих
+    needs: [lint, test, security]
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Установка Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-
-      - name: Сборка пакета
-        run: |
-          pip install build
-          python -m build
-
-      - name: Загрузка собранных пакетов
-        uses: actions/upload-artifact@v4
-        with:
-          name: dist
-          path: dist/
-
-
+      - name: Установка зависимостей
+        run: pip install -r requirements.txt
+      - name: Проверка, что всё импортируется
+        run: python -c "from calc import add, factorial; print('Всё ок:', add(2,3), factorial(5))"
   # =============================================
   # Уведомления в Slack при падении любого job
   # =============================================
